@@ -3,19 +3,34 @@ package com.edu.jet.client;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Scanner;
 
 class Client {
-    private final String IP_ADDRESS = "localhost";
-    private final int PORT = 7778;
+    private final String IP_ADDRESS;
+    private final int PORT;
+
+    public Client() {
+        IP_ADDRESS = "localhost";
+        PORT = 7778;
+    }
+
+    public Client(String ipAddress, int port) {
+        IP_ADDRESS = ipAddress;
+        PORT = port;
+    }
 
     public void startRunning() {
+        String userInputMessageLine;
+        String messageToServer;
 
-        try (Socket clientSocket = new Socket(IP_ADDRESS, PORT)) {
+        try (Socket clientSocket = new Socket(IP_ADDRESS, PORT);
+             ObjectOutputStream clientOutputStream =
+                     new ObjectOutputStream(clientSocket.getOutputStream());
+             ObjectInputStream clinentInputStream =
+                     new ObjectInputStream(clientSocket.getInputStream())) {
 
             try (BufferedReader clientConsoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-                String userInputMessageLine;
 
                 while (!(userInputMessageLine = clientConsoleReader.readLine()).equals("/quit")) {
                     if (userInputMessageLine.length() > 150) {
@@ -30,7 +45,13 @@ class Client {
                         continue;
                     }
 
-                    System.out.println(userInputMessageLine);
+                    //TODO сделать обработку попытки отправить пустое сообщение
+                    messageToServer = getTime() + userInputMessageLine.substring(4);
+                    //TODO обсудить еще раз протокол передачи. Возможно стоит передавать через writeUTF()
+                    clientOutputStream.writeObject(messageToServer);
+
+                    //TODO убрать перед пушем в мастер
+                    System.out.println(messageToServer);
                 }
 
                 System.out.println("You have left the chat");
@@ -46,6 +67,13 @@ class Client {
 
 
     }
+
+    private String getTime() {
+        SimpleDateFormat date = new SimpleDateFormat("'['dd.MM.yyyy HH:mm']'");
+//        DateFormat date = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
+        return date.format(new Date());
+    }
+
     public void send(String message) {
         try (Socket socket = new Socket(IP_ADDRESS, PORT);
              ObjectOutputStream outputStream = new ObjectOutputStream(
@@ -56,14 +84,5 @@ class Client {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public static String message(){
-        Scanner input = new Scanner(System.in);
-        String message = input.nextLine();
-        if(message.contains("/snd")) {
-            return message.substring(5)+(new Date(System.currentTimeMillis())).toString();
-        }
-        return message="";
     }
 }

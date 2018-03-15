@@ -6,7 +6,17 @@ public class ClientRunner {
         System.out.println("Type /snd <message> to send message");
         System.out.println("Type /quit to exit the chat");
 
-        Client client = new Client();
-        client.startRunning();
+        Client client;
+        if (args.length < 2) {
+            client = new Client();
+            client.startRunning();
+        } else {
+            try {
+                client = new Client(args[0], Integer.parseInt(args[1]));
+                client.startRunning();
+            } catch (NumberFormatException e) {
+                System.out.println("Illegal connection arguments");
+            }
+        }
     }
 }
