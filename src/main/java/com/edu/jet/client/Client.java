@@ -6,6 +6,10 @@ import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+/**
+ * @author Aleksey Bondarenko
+ */
+
 class Client {
     private final String IP_ADDRESS;
     private final int PORT;
