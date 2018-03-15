@@ -7,5 +7,6 @@ release.properties
 dependency-reduced-pom.xml
 buildNumber.properties
 javajunior.iml
+java-junior-team-4.iml
 .idea
 .DS_Store
