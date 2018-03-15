@@ -20,6 +20,7 @@ class Client {
         PORT = port;
     }
 
+    //TODO постараться сделать метод компактнее
     public void startRunning() {
         String userInputMessageLine;
         String messageToServer;
@@ -63,26 +64,12 @@ class Client {
         } catch (IOException e) {
             System.out.println("IO error has occurred");
         }
-
-
-
     }
 
+    //TODO обсудить с заказчиком формат даты
     private String getTime() {
         SimpleDateFormat date = new SimpleDateFormat("'['dd.MM.yyyy HH:mm']'");
 //        DateFormat date = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
         return date.format(new Date());
-    }
-
-    public void send(String message) {
-        try (Socket socket = new Socket(IP_ADDRESS, PORT);
-             ObjectOutputStream outputStream = new ObjectOutputStream(
-                     socket.getOutputStream())) {
-
-            outputStream.writeObject(message);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }
