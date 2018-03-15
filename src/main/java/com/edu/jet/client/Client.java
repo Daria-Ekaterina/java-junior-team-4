@@ -2,6 +2,7 @@ package com.edu.jet.client;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.Scanner;
 
@@ -9,35 +10,42 @@ class Client {
     private final String IP_ADDRESS = "localhost";
     private final int PORT = 7778;
 
-    public static void main(String[] args) {
-        System.out.println("Welcome to net chat!");
-        System.out.println("Type /snd <message> to send message");
+    public void startRunning() {
 
-        try (BufferedReader clientConsoleReader = new BufferedReader(new InputStreamReader(System.in))) {
-            String userInputMessageLine;
-            while (!(userInputMessageLine = clientConsoleReader.readLine()).equals("/quit")) {
-                if (userInputMessageLine.length() > 150) {
-                    System.out.println("Your message must be less than 150 characters");
-                    continue;
+        try (Socket clientSocket = new Socket(IP_ADDRESS, PORT)) {
+
+            try (BufferedReader clientConsoleReader = new BufferedReader(new InputStreamReader(System.in))) {
+                String userInputMessageLine;
+
+                while (!(userInputMessageLine = clientConsoleReader.readLine()).equals("/quit")) {
+                    if (userInputMessageLine.length() > 150) {
+                        System.out.println("Your message must be less than 150 characters");
+                        continue;
+                    }
+
+                    //TODO make check with regexp
+                    if (!(userInputMessageLine.toLowerCase().contains("/snd")) ||
+                            userInputMessageLine.toLowerCase().contains("/hist")) {
+                        System.out.println("Illegal command. Try again please");
+                        continue;
+                    }
+
+                    System.out.println(userInputMessageLine);
                 }
-                System.out.println(userInputMessageLine);
+
+                System.out.println("You have left the chat");
+            } catch (IOException e) {
+                System.out.println("IO error has occurred");
             }
-            System.out.println("Exited chat");
+        } catch (UnknownHostException e) {
+            System.out.println("Unknown Host. Connection failed");
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("IO error has occurred");
         }
 
 
 
-
-
-
-
-//        Client client = new Client();
-//        client.send(message());
     }
-
-
     public void send(String message) {
         try (Socket socket = new Socket(IP_ADDRESS, PORT);
              ObjectOutputStream outputStream = new ObjectOutputStream(
@@ -49,6 +57,7 @@ class Client {
             e.printStackTrace();
         }
     }
+
     public static String message(){
         Scanner input = new Scanner(System.in);
         String message = input.nextLine();
