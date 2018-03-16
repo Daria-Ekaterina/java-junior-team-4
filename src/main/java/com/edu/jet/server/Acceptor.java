@@ -1,35 +1,23 @@
 package com.edu.jet.server;
 
-import com.edu.jet.client.Client;
-import com.edu.jet.client.ClientRunner;
-import sun.nio.ch.ThreadPool;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.*;
-
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.ServerSocket;
-import java.net.Socket;
-import java.util.List;
+import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadPoolExecutor;
 
 public class Acceptor implements Runnable {
-    public static HashSet<SomeClass> aliveSocketList = new HashSet<SomeClass>();
+    public static HashSet<SomeClass> aliveSocketList = new HashSet<>();
     private final int MAX_ONNLINE = 10;
 
     @Override
     public void run() {
 
-        try (ServerSocket portListener = new ServerSocket(7778)) {
+        try (ServerSocket portListener = new ServerSocket(8888)) {
             ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONNLINE);
             while (!Thread.interrupted()) {
                 try {
@@ -51,7 +39,7 @@ public class Acceptor implements Runnable {
 
 class SomeClass implements Runnable {
     private Socket socket;
-    private String message = "";
+    private volatile String message = "";
 
     public SomeClass(Socket socket) {
         this.socket = socket;
@@ -60,19 +48,23 @@ class SomeClass implements Runnable {
     @Override
     public void run() {
         Acceptor.aliveSocketList.add(this);
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())
+        try (BufferedReader stringInputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+             PrintWriter stringOutputStream = new PrintWriter(socket.getOutputStream(), true)
         ) {
-            while (!Thread.interrupted()) {
-                Data.sendToAll(objectInputStream.readObject().toString());
-                if (!message.equals("")) {
-                    System.out.println(message);
-                    objectOutputStream.writeObject(message);
+            Thread thread = new Thread(() -> {
+                while (true) {
+                    if (!message.equals("")) {
+//                        System.out.println(message);
+                        stringOutputStream.println(message);
+                        message = "";
+                    }
                 }
+            });
+            thread.start();
+            while (!Thread.interrupted()) {
+                Data.sendToAll(stringInputStream.readLine());
             }
         } catch (IOException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
 
@@ -88,7 +80,7 @@ class SomeClass implements Runnable {
     }
 
     public void write(String message) {
-        this.message=message;
+        this.message = message;
     }
 }
 
