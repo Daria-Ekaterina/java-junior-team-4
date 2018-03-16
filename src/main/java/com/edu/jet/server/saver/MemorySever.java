@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * @author Kulakva Daria
+ *
  *
  */
 public class MemorySever implements Saver {
