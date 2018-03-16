@@ -7,8 +7,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
- * @author Aleksey Bondarenko
+ * @author Aleksey Bondarenko, Andrey Movchan
  */
+
 public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
@@ -50,16 +51,14 @@ public class Client {
                         continue;
                     }
 
-                    //TODO сделать обработку попытки отправить пустое сообщение
-                    //TODO вынести reader writer за клиента? возложить обязанность на конекшн
+                    if (userInputMessageLine.substring(4).replaceAll(" ", "").isEmpty()) {
+                        System.out.println("Your message can not contain only spaces");
+                        continue;
+                    }
 
                     messageToServer = getTime() + userInputMessageLine.substring(4);
                     clientOutputStream.writeObject(messageToServer);
 
-                    //TODO обсудить еще раз протокол передачи. Возможно стоит передавать через writeUTF()
-
-                    //TODO убрать перед пушем в мастер
-                   // System.out.println(messageToServer);
                 }
 
                 System.out.println("You have left the chat");
