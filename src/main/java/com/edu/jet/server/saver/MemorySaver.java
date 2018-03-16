@@ -12,7 +12,7 @@ public class MemorySaver implements Saver {
     private static File file = new File("history.txt");
 
     @Override
-    public void save(String message) {
+    public synchronized void save(String message) {
         if (!message.equals("")) {
             try (FileWriter fw = new FileWriter(file, true)) {
                 fw.write(message);
