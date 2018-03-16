@@ -1,5 +1,8 @@
 package com.edu.jet.server;
 
+import com.edu.jet.server.saver.MemorySaver;
+import com.edu.jet.server.saver.Saver;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -11,21 +14,22 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Acceptor implements Runnable {
-    public static HashSet<SomeClass> aliveSocketList = new HashSet<>();
-    private final int MAX_ONNLINE = 10;
+    public static HashSet<ClientSession> aliveSocketList = new HashSet<>();
+    private final int MAX_ONLINE = 10;
+    public static Saver saver = new MemorySaver();
 
     @Override
     public void run() {
 
         try (ServerSocket portListener = new ServerSocket(8888)) {
-            ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONNLINE);
+            ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONLINE);
             while (!Thread.interrupted()) {
                 try {
                     Socket newConnection = portListener.accept();
                     if (newConnection == null) {
                         throw new ClassCastException();
                     }
-                    executorService.submit(new SomeClass(newConnection));
+                    executorService.submit(new ClientSession(newConnection));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -37,11 +41,11 @@ public class Acceptor implements Runnable {
     }
 }
 
-class SomeClass implements Runnable {
+class ClientSession implements Runnable {
     private Socket socket;
     private volatile String message = "";
 
-    public SomeClass(Socket socket) {
+    public ClientSession(Socket socket) {
         this.socket = socket;
     }
 
@@ -54,7 +58,6 @@ class SomeClass implements Runnable {
             Thread thread = new Thread(() -> {
                 while (true) {
                     if (!message.equals("")) {
-//                        System.out.println(message);
                         stringOutputStream.println(message);
                         message = "";
                     }
@@ -62,7 +65,13 @@ class SomeClass implements Runnable {
             });
             thread.start();
             while (!Thread.interrupted()) {
-                Data.sendToAll(stringInputStream.readLine());
+
+                Handler.sendToAll(stringInputStream.readLine());
+                if (message.startsWith("/hist")) {
+                    for (String string : Acceptor.saver.getData()) {
+                        stringOutputStream.println(string);
+                    }
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -76,7 +85,6 @@ class SomeClass implements Runnable {
             }
         }
 
-        //TODO дождаться от Client runble
     }
 
     public void write(String message) {
@@ -84,9 +92,13 @@ class SomeClass implements Runnable {
     }
 }
 
-class Data {
+class Handler {
     public static void sendToAll(String message) {
-        for (SomeClass a : Acceptor.aliveSocketList) {
+        if (message.equals("/hist")) {
+            return;
+        }
+        Acceptor.saver.save(message);
+        for (ClientSession a : Acceptor.aliveSocketList) {
             a.write(message);
         }
     }

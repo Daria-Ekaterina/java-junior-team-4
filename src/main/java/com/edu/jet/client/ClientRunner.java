@@ -5,20 +5,26 @@ public class ClientRunner {
         System.out.println("Welcome to net chat!");
         System.out.println("Type /snd <message> to send message");
         System.out.println("Type /quit to exit the chat");
+        System.out.println("Your name:");
 
         Client client;
-        if (args.length < 2) {
-            client = new Client();
-            client.startRunning();
-        } else {
-            try {
-                client = new Client(args[0], Integer.parseInt(args[1]));
+        try {
+            if (args.length < 2) {
+                client = new Client();
                 client.startRunning();
-            } catch (NumberFormatException e) {
-                System.out.println("Illegal connection arguments");
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } else {
+                try {
+                    client = new Client(args[0], Integer.parseInt(args[1]));
+                    client.startRunning();
+                } catch (NumberFormatException e) {
+                    System.out.println("Illegal connection arguments");
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
             }
+        } catch (NullPointerException e) {
+            System.out.println("Emergency exit");
+            System.exit(1);
         }
     }
 }
