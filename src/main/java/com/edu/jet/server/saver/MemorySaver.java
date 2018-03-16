@@ -13,7 +13,7 @@ public class MemorySaver implements Saver {
     }
     @Override
     public void save(Object message) {
-        if (message.equals("")){
+        if (!message.equals("")){
             listMessage.add(message.toString());
         }
 

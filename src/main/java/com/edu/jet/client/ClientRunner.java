@@ -1,16 +1,20 @@
 package com.edu.jet.client;
 
+import java.util.Scanner;
+
 public class ClientRunner {
+    private static String name;
     public static void main(String[] args) throws InterruptedException {
         System.out.println("Welcome to net chat!");
         System.out.println("Type /snd <message> to send message");
         System.out.println("Type /quit to exit the chat");
         System.out.println("Your name:");
-
+        Scanner scanner = new Scanner(System.in);
+        name = scanner.nextLine();
         Client client;
         try {
             if (args.length < 2) {
-                client = new Client();
+                client = new Client(name);
                 client.startRunning();
             } else {
                 try {

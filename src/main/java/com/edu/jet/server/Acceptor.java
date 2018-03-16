@@ -44,6 +44,7 @@ public class Acceptor implements Runnable {
 class ClientSession implements Runnable {
     private Socket socket;
     private volatile String message = "";
+    private String currentMassage ="";
 
     public ClientSession(Socket socket) {
         this.socket = socket;
@@ -65,9 +66,9 @@ class ClientSession implements Runnable {
             });
             thread.start();
             while (!Thread.interrupted()) {
-
-                Handler.sendToAll(stringInputStream.readLine());
-                if (message.startsWith("/hist")) {
+                currentMassage = stringInputStream.readLine();
+                Handler.sendToAll(currentMassage);
+                if (currentMassage.startsWith("/hist")) {
                     for (String string : Acceptor.saver.getData()) {
                         stringOutputStream.println(string);
                     }
