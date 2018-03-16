@@ -66,6 +66,7 @@ class SomeClass implements Runnable {
             while (!Thread.interrupted()) {
                 Data.sendToAll(objectInputStream.readObject().toString());
                 if (!message.equals("")) {
+                    System.out.println(message);
                     objectOutputStream.writeObject(message);
                 }
             }

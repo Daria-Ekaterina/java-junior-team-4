@@ -32,8 +32,8 @@ public class Client {
         try (Socket clientSocket = new Socket(IP_ADDRESS, PORT);
              ObjectOutputStream clientOutputStream =
                      new ObjectOutputStream(clientSocket.getOutputStream());
-//              ObjectInputStream clinentInputStream =
-//                     new ObjectInputStream(clientSocket.getInputStream())
+              ObjectInputStream clinentInputStream =
+                     new ObjectInputStream(clientSocket.getInputStream())
             ) {
 
             try (BufferedReader clientConsoleReader = new BufferedReader(new InputStreamReader(System.in))) {
@@ -56,12 +56,16 @@ public class Client {
                     } else {
                         messageToServer = getTime() + userInputMessageLine.substring(4);
                         clientOutputStream.writeObject(messageToServer);
+                        System.out.println(clinentInputStream.readObject().toString());
+
                     }
                 }
 
                 System.out.println("You have left the chat");
             } catch (IOException e) {
                 System.out.println("IO error has occurred");
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
         } catch (UnknownHostException e) {
             System.out.println("Unknown Host. Connection failed");
