@@ -53,6 +53,8 @@ public class Client {
                     }
 
                     //TODO сделать обработку попытки отправить пустое сообщение
+                    //TODO вынести reader writer за клиента? возложить обязанность на конекшн
+
                     messageToServer = getTime() + userInputMessageLine.substring(4);
                     clientOutputStream.writeObject(messageToServer);
                   //  System.out.println(clinentInputStream.readObject().toString());

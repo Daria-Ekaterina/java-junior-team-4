@@ -38,9 +38,9 @@ public class Acceptor implements Runnable {
 
                     System.out.println("ready");
                     //TODO дождаться от Client runble
-                   // Thread threadClint=new Thread(client);
-//                    threadClint.start();
-//                    listThread.add(threadClint);
+                    Thread threadClint=new Thread();//Thread(clients)
+                    threadClint.start();
+                    listThread.add(threadClint);
 
                 }catch (IOException e){
                     e.printStackTrace();

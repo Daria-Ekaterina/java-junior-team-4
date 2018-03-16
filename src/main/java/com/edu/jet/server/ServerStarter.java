@@ -5,7 +5,9 @@ public class ServerStarter {
 
 
         Acceptor acceptor=new Acceptor();
-        acceptor.startServer();
+        Thread threadMain=new Thread();
+        acceptor.run();
+
 
     }
 }
