@@ -23,15 +23,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadPoolExecutor;
 
 public class Acceptor implements Runnable {
-
-    Set<Socket> listSockets = new HashSet<Socket>();//упорядоченная коллекция уникальных элементов
-    // List<String> list = new LinkedList<String>();
-    List<Client> clients = new LinkedList<Client>();
-    private List<Thread> listThread = new LinkedList<>();
+    public static HashSet<SomeClass> aliveSocketList = new HashSet<SomeClass>();
     private final int MAX_ONNLINE = 10;
 
     @Override
     public void run() {
+
         try (ServerSocket portListener = new ServerSocket(7778)) {
             ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONNLINE);
             while (!Thread.interrupted()) {
@@ -49,26 +46,12 @@ public class Acceptor implements Runnable {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-    }
-
-    public void stop() {
-        for (Socket connect : listSockets) {
-            try {
-                connect.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-        }
-        for (Thread threadClient : listThread) {
-            threadClient.interrupt();
-        }
     }
 }
 
 class SomeClass implements Runnable {
     private Socket socket;
+    private String message = "";
 
     public SomeClass(Socket socket) {
         this.socket = socket;
@@ -76,19 +59,24 @@ class SomeClass implements Runnable {
 
     @Override
     public void run() {
+        Acceptor.aliveSocketList.add(this);
         try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
-//             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())
+             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())
         ) {
             while (!Thread.interrupted()) {
-                System.out.println(objectInputStream.readObject().toString());
-
+                Data.sendToAll(objectInputStream.readObject().toString());
+                if (!message.equals("")) {
+                    objectOutputStream.writeObject(message);
+                }
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         } finally {
+
             try {
+                Acceptor.aliveSocketList.remove(socket);
                 socket.close();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -97,7 +85,18 @@ class SomeClass implements Runnable {
 
         //TODO дождаться от Client runble
     }
+
+    public void write(String message) {
+        this.message=message;
+    }
 }
 
+class Data {
+    public static void sendToAll(String message) {
+        for (SomeClass a : Acceptor.aliveSocketList) {
+            a.write(message);
+        }
+    }
+}
 
 
