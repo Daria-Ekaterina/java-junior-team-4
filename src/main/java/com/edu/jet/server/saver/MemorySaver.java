@@ -4,9 +4,6 @@ import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * @author Kulakva Daria
- */
 public class MemorySaver implements Saver {
     private List<String> listMessage = new LinkedList<>();
     private static File file = new File("history.txt");

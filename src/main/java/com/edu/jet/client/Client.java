@@ -10,10 +10,6 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-/**
- * @author Aleksey Bondarenko, Andrey Movchan
- */
-
 public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
