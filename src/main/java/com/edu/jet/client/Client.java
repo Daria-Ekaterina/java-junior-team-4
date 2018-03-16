@@ -53,17 +53,14 @@ public class Client {
 
                     if (userInputMessageLine.substring(4).replaceAll(" ", "").isEmpty()) {
                         System.out.println("Your message can not contain only spaces");
-                        continue;
+                    } else {
+                        messageToServer = getTime() + userInputMessageLine.substring(4);
+                        clientOutputStream.writeObject(messageToServer);
                     }
-
-                    messageToServer = getTime() + userInputMessageLine.substring(4);
-                    clientOutputStream.writeObject(messageToServer);
-
                 }
 
                 System.out.println("You have left the chat");
             } catch (IOException e) {
-                //e.printStackTrace();
                 System.out.println("IO error has occurred");
             }
         } catch (UnknownHostException e) {
