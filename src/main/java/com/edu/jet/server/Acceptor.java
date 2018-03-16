@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Acceptor implements Runnable {
+class Acceptor implements Runnable {
     public static HashSet<ClientSession> aliveSocketList = new HashSet<>();
     private final int MAX_ONLINE = 1000;
     public static Saver saver = new MemorySaver();
@@ -40,69 +40,3 @@ public class Acceptor implements Runnable {
         }
     }
 }
-
-class ClientSession implements Runnable {
-    private Socket socket;
-    private volatile String message = "";
-    private String currentMassage ="";
-
-    public ClientSession(Socket socket) {
-        this.socket = socket;
-    }
-
-    @Override
-    public void run() {
-        Acceptor.aliveSocketList.add(this);
-        try (BufferedReader stringInputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-             PrintWriter stringOutputStream = new PrintWriter(socket.getOutputStream(), true)
-        ) {
-            Thread thread = new Thread(() -> {
-                while (true) {
-                    if (!message.equals("")) {
-                        stringOutputStream.println(message);
-                        message = "";
-                    }
-                }
-            });
-            thread.start();
-            while (!Thread.interrupted()) {
-                currentMassage = stringInputStream.readLine();
-                Handler.sendToAll(currentMassage);
-                if (currentMassage.startsWith("/hist")) {
-                    for (String string : Acceptor.saver.getData()) {
-                        stringOutputStream.println(string);
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-
-            try {
-                Acceptor.aliveSocketList.remove(socket);
-                socket.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-    public void write(String message) {
-        this.message = message;
-    }
-}
-
-class Handler {
-    public static void sendToAll(String message) {
-        if (message.equals("/hist")) {
-            return;
-        }
-        Acceptor.saver.save(message);
-        for (ClientSession a : Acceptor.aliveSocketList) {
-            a.write(message);
-        }
-    }
-}
-
-
