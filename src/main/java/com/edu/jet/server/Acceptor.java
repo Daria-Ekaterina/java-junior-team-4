@@ -32,17 +32,19 @@ public class Acceptor implements Runnable {
                 try{
                     Socket newConnection=portListener.accept();
                     listSockets.add(newConnection);
+                    ObjectInputStream objectInputStream = new ObjectInputStream(newConnection.getInputStream());
+                    while (!Thread.interrupted()) {
 
-                    Client client=new Client();
-                    clients.add(client);
-
-                    System.out.println("ready");
+//                    System.out.println("ready");
+                    System.out.println(objectInputStream.readObject().toString()); }
                     //TODO дождаться от Client runble
                     Thread threadClint=new Thread();//Thread(clients)
                     threadClint.start();
                     listThread.add(threadClint);
 
                 }catch (IOException e){
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
                     e.printStackTrace();
                 }
             }

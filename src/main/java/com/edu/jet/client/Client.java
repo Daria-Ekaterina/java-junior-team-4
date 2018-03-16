@@ -9,7 +9,6 @@ import java.util.Date;
 /**
  * @author Aleksey Bondarenko
  */
-//TODO имплементировать runble
 public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
@@ -39,7 +38,6 @@ public class Client {
             try (BufferedReader clientConsoleReader = new BufferedReader(new InputStreamReader(System.in))) {
 
                 while (!(userInputMessageLine = clientConsoleReader.readLine()).equals("/quit")) {
-                    System.out.println("in while != quit");
                     if (userInputMessageLine.length() > 150) {
                         System.out.println("Your message must be less than 150 characters");
                         continue;
@@ -57,12 +55,8 @@ public class Client {
 
                     messageToServer = getTime() + userInputMessageLine.substring(4);
                     clientOutputStream.writeObject(messageToServer);
-                  //  System.out.println(clinentInputStream.readObject().toString());
-                   // System.out.println(clinentInputStream.readObject().toString());
-
 
                     //TODO обсудить еще раз протокол передачи. Возможно стоит передавать через writeUTF()
-                   // getaVoid(messageToServer, clientOutputStream);
 
                     //TODO убрать перед пушем в мастер
                    // System.out.println(messageToServer);
@@ -79,15 +73,7 @@ public class Client {
             e.printStackTrace();
             System.out.println("IO error has occurred");
         }
-//        } catch (ClassNotFoundException e) {
-//            System.out.println("Object for pribt not found");
-//           // e.printStackTrace();
-//        }
     }
-
-//    private synchronized void getaVoid(String messageToServer, ObjectOutputStream clientOutputStream) throws IOException {
-//        clientOutputStream.writeObject(messageToServer);
-//    }
 
     //TODO обсудить с заказчиком формат даты
     private String getTime() {
