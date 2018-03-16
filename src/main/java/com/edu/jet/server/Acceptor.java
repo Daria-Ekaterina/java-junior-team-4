@@ -1,6 +1,7 @@
 package com.edu.jet.server;
 import com.edu.jet.client.Client;
 import com.edu.jet.client.ClientRunner;
+import sun.nio.ch.ThreadPool;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -16,57 +17,93 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 
 public class Acceptor implements Runnable {
 
     Set<Socket> listSockets = new HashSet<Socket>();//упорядоченная коллекция уникальных элементов
-   // List<String> list = new LinkedList<String>();
-    List<Client> clients=new LinkedList <Client>();
-    List<Thread> listThread = new LinkedList <>();
+    // List<String> list = new LinkedList<String>();
+    List<Client> clients = new LinkedList<Client>();
+    List<Thread> listThread = new LinkedList<>();
+    private final int MAX_ONNLINE=10;
 
     @Override
     public void run() {
-        try (ServerSocket portListener = new ServerSocket(7778);){
-            while (!Thread.interrupted()){
+        try (ServerSocket portListener = new ServerSocket(7778);) {
+            ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONNLINE);
+            while (!Thread.interrupted()) {
                 System.out.println("listen");
-                try{
-                    Socket newConnection=portListener.accept();
-                    listSockets.add(newConnection);
-                    ObjectInputStream objectInputStream = new ObjectInputStream(newConnection.getInputStream());
-                    while (!Thread.interrupted()) {
+                try (Socket newConnection = portListener.accept();) {
+                        System.out.println("in try");
+                        if (newConnection == null) {
+                            throw new ClassCastException();
+                        }
+                        executorService.submit(new SomeClass(newConnection));
+//                        Thread client = new Thread(new SomeClass(newConnection));
 
+
+//                    listSockets.add(newConnection);
+//                    ObjectInputStream objectInputStream = new ObjectInputStream(newConnection.getInputStream());
+//                    while (!Thread.interrupted()) {
+//
 //                    System.out.println("ready");
-                    System.out.println(objectInputStream.readObject().toString()); }
+//                        System.out.println(objectInputStream.readObject().toString());
+//                    }
                     //TODO дождаться от Client runble
-                    Thread threadClint=new Thread();//Thread(clients)
-                    threadClint.start();
-                    listThread.add(threadClint);
+//                    Thread threadClint = new Thread();//Thread(clients)
+//                    threadClint.start();
+//                    listThread.add(threadClint);
 
-                }catch (IOException e){
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
             }
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
     }
 
-    public void stop(){
-        for(Socket connect:listSockets){
-            try{
+    public void stop() {
+        for (Socket connect : listSockets) {
+            try {
                 connect.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
         }
-        for(Thread threadClient:listThread){
+        for (Thread threadClient : listThread) {
             threadClient.interrupt();
         }
     }
+}
+class SomeClass implements Runnable{
+    private Socket socket;
+
+    public SomeClass(Socket socket) {
+        this.socket = socket;
+    }
+
+    @Override
+    public void run() {
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());){
+            while (!Thread.interrupted()) {
+
+                    System.out.println("ready");
+                System.out.println(objectInputStream.readObject().toString());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        //TODO дождаться от Client runble
+    }
+}
 //    public void startServer() {
 //        try (ServerSocket portListener = new ServerSocket(7778);) {
 //            while (true) {
@@ -106,4 +143,4 @@ public class Acceptor implements Runnable {
 //    }
 
 
-}
+
