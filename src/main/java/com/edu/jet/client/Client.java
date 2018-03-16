@@ -10,19 +10,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Scanner;
 
-/**
- * @author Aleksey Bondarenko, Andrey Movchan
- */
-
 public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
     private String name;
 
 
-    Client() {
+    Client(String name) {
         IP_ADDRESS = "localhost";
         PORT = 8888;
+        this.name =name;
     }
 
     Client(String ipAddress, int port) {
@@ -54,9 +51,7 @@ public class Client {
                     }
                 });
                 thread.start();
-                Thread.sleep(2_000);
 
-                name = scanner.nextLine();
                 while (!(userInputMessageLine = scanner.nextLine()).startsWith("/quit")) { //Thread OUTPUT
                     if (userInputMessageLine.length() > 150) {
                         System.out.println("Your message must be less than 150 characters");
@@ -70,7 +65,7 @@ public class Client {
                         continue;
                     }
 
-                    if((userInputMessageLine.toLowerCase().startsWith("/hist"))){
+                    if(userInputMessageLine.toLowerCase().startsWith("/hist")){
                         clientOutputStream.println(userInputMessageLine);
                         continue;
                     }
