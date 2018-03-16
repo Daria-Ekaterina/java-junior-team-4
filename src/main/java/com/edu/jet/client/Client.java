@@ -9,8 +9,8 @@ import java.util.Date;
 /**
  * @author Aleksey Bondarenko
  */
-
-class Client {
+//TODO имплементировать runble
+public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
 
