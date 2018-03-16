@@ -15,7 +15,7 @@ import java.util.concurrent.Executors;
 
 public class Acceptor implements Runnable {
     public static HashSet<ClientSession> aliveSocketList = new HashSet<>();
-    private final int MAX_ONLINE = 10;
+    private final int MAX_ONLINE = 1000;
     public static Saver saver = new MemorySaver();
 
     @Override
