@@ -1,7 +1,7 @@
 package com.edu.jet.client;
 
 public class ClientRunner {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         System.out.println("Welcome to net chat!");
         System.out.println("Type /snd <message> to send message");
         System.out.println("Type /quit to exit the chat");
@@ -16,6 +16,8 @@ public class ClientRunner {
                 client.startRunning();
             } catch (NumberFormatException e) {
                 System.out.println("Illegal connection arguments");
+            } catch (InterruptedException e) {
+                e.printStackTrace();
             }
         }
     }
