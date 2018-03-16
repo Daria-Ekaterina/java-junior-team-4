@@ -1,4 +1,5 @@
 package com.edu.jet.server;
+
 import com.edu.jet.client.Client;
 import com.edu.jet.client.ClientRunner;
 import sun.nio.ch.ThreadPool;
@@ -26,39 +27,24 @@ public class Acceptor implements Runnable {
     Set<Socket> listSockets = new HashSet<Socket>();//упорядоченная коллекция уникальных элементов
     // List<String> list = new LinkedList<String>();
     List<Client> clients = new LinkedList<Client>();
-    List<Thread> listThread = new LinkedList<>();
-    private final int MAX_ONNLINE=10;
+    private List<Thread> listThread = new LinkedList<>();
+    private final int MAX_ONNLINE = 10;
 
     @Override
     public void run() {
-        try (ServerSocket portListener = new ServerSocket(7778);) {
+        try (ServerSocket portListener = new ServerSocket(7778)) {
             ExecutorService executorService = Executors.newFixedThreadPool(MAX_ONNLINE);
             while (!Thread.interrupted()) {
-                System.out.println("listen");
-                try (Socket newConnection = portListener.accept();) {
-                        System.out.println("in try");
-                        if (newConnection == null) {
-                            throw new ClassCastException();
-                        }
-                        executorService.submit(new SomeClass(newConnection));
-//                        Thread client = new Thread(new SomeClass(newConnection));
-
-
-//                    listSockets.add(newConnection);
-//                    ObjectInputStream objectInputStream = new ObjectInputStream(newConnection.getInputStream());
-//                    while (!Thread.interrupted()) {
-//
-//                    System.out.println("ready");
-//                        System.out.println(objectInputStream.readObject().toString());
-//                    }
-                    //TODO дождаться от Client runble
-//                    Thread threadClint = new Thread();//Thread(clients)
-//                    threadClint.start();
-//                    listThread.add(threadClint);
-
+                try {
+                    Socket newConnection = portListener.accept();
+                    if (newConnection == null) {
+                        throw new ClassCastException();
+                    }
+                    executorService.submit(new SomeClass(newConnection));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
+
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -80,7 +66,8 @@ public class Acceptor implements Runnable {
         }
     }
 }
-class SomeClass implements Runnable{
+
+class SomeClass implements Runnable {
     private Socket socket;
 
     public SomeClass(Socket socket) {
@@ -89,58 +76,28 @@ class SomeClass implements Runnable{
 
     @Override
     public void run() {
-        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());){
+        try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
+//             ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())
+        ) {
             while (!Thread.interrupted()) {
-
-                    System.out.println("ready");
                 System.out.println(objectInputStream.readObject().toString());
+
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                socket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
 
         //TODO дождаться от Client runble
     }
 }
-//    public void startServer() {
-//        try (ServerSocket portListener = new ServerSocket(7778);) {
-//            while (true) {
-//                try (Socket clientSession = portListener.accept(); ObjectInputStream message = new ObjectInputStream(clientSession.getInputStream())) {
-//                    //TODO обсудить хранине сокетов в листе
-//                    ObjectOutputStream sendBack=new ObjectOutputStream(clientSession.getOutputStream());
-//                    //listSockets.add(clientSession);
-//                    //System.out.println(message.readObject().toString());
-//                    //TODO обсудить порядок выполнения запросов клиент-сервер-клиент
-//                    System.out.println(message.readObject().toString());
-//                    //TODO записывать сообщения в очередь, пока сервер отправляет новое сообщение всем пользователям
-//                   // list.add(message.readObject().toString());
-//                    System.out.println(message.readObject().toString());
-//
-//                    sendBack.writeObject(message);
-//              //      sendMessageToAll(message.readObject().toString());
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }catch (ClassNotFoundException e){
-//                    e.printStackTrace();
-//                }
-//            }
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
-//
-//    /**
-//     * Метод отправляет сообщиние всем активным пользователям.
-//     *
-//     */
-//    private synchronized void sendMessageToAll(String message) throws IOException {
-////            for(Socket so:listSockets){
-////                ObjectOutputStream sendBack=new ObjectOutputStream(so.getOutputStream());
-////                sendBack.writeObject(message);
-////            }
-//    }
 
 
 
