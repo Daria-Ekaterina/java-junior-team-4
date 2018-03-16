@@ -7,17 +7,19 @@ import java.util.List;
  * @author Kulakva Daria
  *
  */
-public class MemorySever implements Saver {
+public class MemorySaver implements Saver {
     private  List<String> listMessage = new LinkedList <>();
-    private Object obj;
-    public MemorySever(){
-        //this.obj=obj;
+    public MemorySaver(){
     }
     @Override
     public void save(Object message) {
-        if (message!=null){
+        if (message.equals("")){
             listMessage.add(message.toString());
         }
 
+    }
+
+    public List<String> getData() {
+        return listMessage;
     }
 }

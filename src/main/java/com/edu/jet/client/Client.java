@@ -17,13 +17,15 @@ import java.util.Scanner;
 public class Client {
     private final String IP_ADDRESS;
     private final int PORT;
+    private String name;
 
-    public Client() {
+
+    Client() {
         IP_ADDRESS = "localhost";
         PORT = 8888;
     }
 
-    public Client(String ipAddress, int port) {
+    Client(String ipAddress, int port) {
         IP_ADDRESS = ipAddress;
         PORT = port;
     }
@@ -53,29 +55,37 @@ public class Client {
                 });
                 thread.start();
                 Thread.sleep(2_000);
-                while (!(userInputMessageLine = scanner.nextLine()).equals("/quit")) { //Thread OUTPUT
+
+                name = scanner.nextLine();
+                while (!(userInputMessageLine = scanner.nextLine()).startsWith("/quit")) { //Thread OUTPUT
                     if (userInputMessageLine.length() > 150) {
                         System.out.println("Your message must be less than 150 characters");
                         continue;
                     }
 
                     //TODO make check with regexp
-                    if (!(userInputMessageLine.toLowerCase().contains("/snd")) ||
-                            userInputMessageLine.toLowerCase().contains("/hist")) {
+                    if (!(userInputMessageLine.toLowerCase().startsWith("/snd") ||
+                            userInputMessageLine.toLowerCase().startsWith("/hist"))) {
                         System.out.println("Illegal command. Try again please");
+                        continue;
+                    }
+
+                    if((userInputMessageLine.toLowerCase().startsWith("/hist"))){
+                        clientOutputStream.println(userInputMessageLine);
                         continue;
                     }
 
                     if (userInputMessageLine.substring(4).replaceAll(" ", "").isEmpty()) {
                         System.out.println("Your message can not contain only spaces");
                     } else {
-                        messageToServer = getTime() + userInputMessageLine.substring(4);
+                        messageToServer = getTime()+" "+name+": " + userInputMessageLine.substring(4);
                         clientOutputStream.println(messageToServer);
 
                     }
                 }
 
                 System.out.println("You have left the chat");
+                System.exit(0);
             }
         } catch (UnknownHostException e) {
             System.out.println("Unknown Host. Connection failed");
@@ -85,10 +95,8 @@ public class Client {
         }
     }
 
-    //TODO обсудить с заказчиком формат даты
     private String getTime() {
         SimpleDateFormat date = new SimpleDateFormat("'['dd.MM.yyyy HH:mm']'");
-//        DateFormat date = DateFormat.getDateInstance(DateFormat.FULL, Locale.getDefault());
         return date.format(new Date());
     }
 }
